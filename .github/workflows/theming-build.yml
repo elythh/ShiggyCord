@@ -1,0 +1,46 @@
+name: Theming build (fork)
+
+# Fork-only: builds the bundle from this branch and publishes it at a fixed URL,
+# for ShiggyCord's custom bundle setting:
+# https://github.com/elythh/ShiggyCord/releases/download/theming-build/shiggycord.js
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - theming-build
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.repository != 'kmmiio99o/ShiggyCord'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Publish bundle
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: theming-build
+          name: Theming build
+          body: |
+            ShiggyCord built from the `theming-build` branch (${{ github.sha }}).
+            Load it with Developer settings → custom bundle URL:
+            https://github.com/elythh/ShiggyCord/releases/download/theming-build/shiggycord.js
+          prerelease: true
+          make_latest: false
+          files: |
+            dist/shiggycord.js
+            dist/shiggycord.min.js
